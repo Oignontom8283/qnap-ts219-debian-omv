@@ -1,0 +1,7 @@
+# U-Boot's ethaddr is a placeholder on this board; set the real MAC here (filled in at build time).
+[Match]
+Driver=mv643xx_eth
+
+[Link]
+Name=eth0
+MACAddress=@NAS_MAC@

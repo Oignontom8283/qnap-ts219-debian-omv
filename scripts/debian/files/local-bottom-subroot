@@ -1,0 +1,15 @@
+#!/bin/sh
+# initramfs-tools local-bottom script.
+# After the data volume (md0) has been mounted on ${rootmnt}: if it contains /debian, that directory becomes
+# the root and the whole volume is moved to /media/md0 inside the new root.
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in prereqs) prereqs; exit 0 ;; esac
+if [ -d "${rootmnt}/debian/etc" ]; then
+	mkdir -p /mnt/md0root
+	mount -n -o move "${rootmnt}" /mnt/md0root
+	mount -n --bind /mnt/md0root/debian "${rootmnt}"
+	mkdir -p "${rootmnt}/media/md0"
+	mount -n --move /mnt/md0root "${rootmnt}/media/md0" || mount -n -o move /mnt/md0root "${rootmnt}/media/md0"
+fi
+exit 0

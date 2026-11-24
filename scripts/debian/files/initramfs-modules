@@ -1,0 +1,10 @@
+# Modules needed to assemble md0 (RAID 1) and mount it. Everything else is loaded later by udev.
+sata_mv
+sd_mod
+md_mod
+raid1
+ext4
+jbd2
+mbcache
+crc16
+crc32c_generic

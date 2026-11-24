@@ -1,0 +1,13 @@
+# Never commit any of this
+config.env
+secrets/
+out/
+*.bin
+*.img
+*.tar
+*.gz
+*.dtb
+uImage*
+uInitrd*
+mtd*
+*.md5

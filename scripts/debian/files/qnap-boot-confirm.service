@@ -1,0 +1,12 @@
+[Unit]
+Description=Confirm the Debian boot to U-Boot (restore the kernel header on disk)
+After=network-online.target ssh.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 60
+ExecStart=/usr/local/sbin/qnap-boot-confirm
+
+[Install]
+WantedBy=multi-user.target

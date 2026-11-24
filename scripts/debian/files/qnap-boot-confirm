@@ -1,0 +1,22 @@
+#!/bin/sh
+# U-Boot zeroes the kernel image header on disk at EVERY Debian boot (one-shot trial).
+# This script restores it once the system is healthy, so the next boot starts Debian again.
+# If Debian is broken it never runs, and the next boot falls back to QTS automatically.
+# Reads /etc/qnap-boot.conf :  KERNEL_REL_SECTOR=<sector of the kernel zone relative to partition 2>
+set -e
+. /etc/qnap-boot.conf
+H=/usr/local/share/qnap/uImage.hdr
+ip -4 addr show eth0 | grep -q 'inet ' || { echo "no IPv4 on eth0"; exit 1; }
+systemctl is-active --quiet ssh || { echo "ssh not active"; exit 1; }
+[ "$(stat -c %s $H)" = 512 ] || { echo "bad header file"; exit 1; }
+for d in /dev/sda2 /dev/sdb2; do
+  [ -b "$d" ] || continue
+  dd if="$H" of="$d" bs=512 seek="$KERNEL_REL_SECTOR" count=1 conv=notrunc 2>/dev/null
+done
+sync
+for d in /dev/sda2 /dev/sdb2; do
+  [ -b "$d" ] || continue
+  [ "$(dd if=$d bs=512 skip=$KERNEL_REL_SECTOR count=1 2>/dev/null | md5sum | cut -d' ' -f1)" = "$(md5sum < $H | cut -d' ' -f1)" ] \
+    || { echo "verification failed on $d"; exit 1; }
+done
+echo "Debian boot confirmed: kernel header restored on both disks."
